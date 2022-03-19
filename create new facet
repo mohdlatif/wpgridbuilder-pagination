@@ -17,12 +17,6 @@ add_filter( 'wp_grid_builder/facets', 'prefix_register_facet', 10, 1 );
 
 
 
-/**
- * Handle custom pagination
- *
- * @class WP_Grid_Builder\Includes\Paginate
- * @since 1.0.0
- */
 final class Paginate {
 
 	/**
