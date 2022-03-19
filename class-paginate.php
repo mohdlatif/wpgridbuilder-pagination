@@ -5,6 +5,7 @@
  * @package   WP Grid Builder
  * @author    Loïc Blascos
  * @copyright 2019-2022 Loïc Blascos
+ * class-paginate.php
  */
 
 namespace WP_Grid_Builder\Includes;
@@ -194,8 +195,14 @@ final class Paginate {
 	public function loop( $steps ) {
 
 		for ( $i = $steps['from']; $i <= $steps['to']; $i++ ) {
+			
+			
+
 			$this->page( $i, $i );
+			
+		
 		}
+		
 	}
 
 	/**
@@ -207,7 +214,7 @@ final class Paginate {
 	public function start() {
 
 		echo '<ul class="' . sanitize_html_class( $this->classes['holder'] ) . '">';
-
+		echo '<span class="nav-m">' . 'Page ' . $this->current. " of " . $this->total . '</span>' ;
 	}
 
 	/**
@@ -230,11 +237,21 @@ final class Paginate {
 	 */
 	public function prev() {
 
-		if ( ! $this->prev_next || 1 === $this->current ) {
+		if ( ! $this->prev_next ) {
 			return;
 		}
-
-		$this->page( $this->current - 1, $this->prev_text );
+		
+		if (1 === $this->current){  
+		
+		$this->page( $this->current - 1, $this->prev_text, 'disabled', 'previous' ); 
+		
+		} else { 
+		
+		$this->page( $this->current - 1, $this->prev_text, '', 'previous'  ); 
+		
+		
+		}
+		
 
 	}
 
@@ -249,11 +266,20 @@ final class Paginate {
 		$total   = $this->total;
 		$current = $this->current;
 
-		if ( ! $this->prev_next || $this->current === $this->total ) {
+		if ( ! $this->prev_next ) {
 			return;
 		}
 
-		$this->page( $this->current + 1, $this->next_text );
+		if ($current === $total){  
+		
+		$this->page( $this->current + 1, $this->next_text, 'disabled', 'next' ); 
+		
+		}
+		else {
+
+		$this->page( $this->current + 1, $this->next_text, '', 'next' );
+		
+		}
 
 	}
 
@@ -282,20 +308,31 @@ final class Paginate {
 	 * @param integer $number Page number.
 	 * @param string  $text Page text content.
 	 */
-	public function page( $number = '', $text = '' ) {
+	public function page( $number = '', $text = '', $extraclass = '', $prevnxt = '' ) {
 
 		/* translators: %d: Page number */
 		$aria_label  = sprintf( __( 'Goto Page %d', 'wp-grid-builder' ), $number );
-		$page_format = '<li class="%1$s"%3$s%4$s%5$s>%7$s</li>';
+		$page_format = '<li class="%1$s %8$s"%9$s%3$s%4$s%5$s>%7$s</li>';
 		$is_selected = $this->current === $number;
 
 		// Add link if available.
 		if ( $number && ! empty( $this->base ) && ! empty( $this->format ) ) {
-			$page_format = '<li class="%1$s"><a href="%6$s"%3$s%4$s%5$s>%7$s</a></li>';
+			
+			if ( $extraclass === 'disabled' ) {
+			$page_format = '<li class="%1$s %8$s"%9$s>%7$s</li>';
+			}
+			else {
+				
+				
+					$page_format = '<li class="%1$s %8$s"%9$s><a href="%6$s"%3$s%4$s%5$s>%7$s </a> </li>';
+				
+				
+			}
+			
 		} elseif ( false === $number ) {
-			$page_format = '<li class="%1$s"><span class="%2$s">%7$s</span></li>';
+			$page_format = '<li class="%1$s %8$s"%9$s><span class="%2$s">%7$s</span> </li>';
 		}
-
+		
 		if ( $is_selected ) {
 			/* translators: %d: Page number */
 			$aria_label = sprintf( __( 'Current Page, Page %d', 'wp-grid-builder' ), $number );
@@ -309,7 +346,9 @@ final class Paginate {
 			( ! empty( $number ) ? ' aria-label="' . esc_attr( $aria_label ) . '"' : '' ),
 			( ! empty( $number ) ? ' data-page="' . esc_attr( $number ) . '"' : '' ),
 			esc_url( $this->base . $this->format . '=' . $number ),
-			esc_html( $text )
+			esc_html( $text ),
+			( ! empty( $extraclass ) ? 'disabled"status="disabled' : ''  ),
+			( ! empty( $prevnxt ) ? 'atr-button="' . esc_attr($prevnxt) . '"' : ''  )
 		);
 
 	}
